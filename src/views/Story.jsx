@@ -84,7 +84,8 @@ function Step({ n, title, children, to, cta }) {
   );
 }
 
-// Data flow: OT -> IT, one way (ADR-0003). Raw values stay in the time-series store (ADR-0001).
+// Data flow: OT -> DMZ -> IT, one way (ADR-0003). Raw values stay in the time-series store (ADR-0001).
+// Master data (master list, recipes, CMMS) is an IT-side input to the sync job, not part of the DMZ.
 function Architecture() {
   const box = (x, y, w, title, sub, color) => (
     <g>
@@ -95,7 +96,8 @@ function Architecture() {
   );
   const arrow = (x1, y1, x2, y2) => <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--axis)" strokeWidth={1.5} markerEnd="url(#arr)" />;
   return (
-    <svg className="arch" viewBox="0 0 420 300" role="img" aria-label="Data flow from the plant floor to the knowledge graph">
+    <svg className="arch" viewBox="0 0 420 340" role="img"
+      aria-label="Data flow: OT to the DMZ (MQTT broker, ingest, TimescaleDB) to IT, where master data and the sync job build the Neo4j graph">
       <defs>
         <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
           <path d="M0,0 L10,5 L0,10 z" fill="var(--axis)" />
@@ -106,18 +108,23 @@ function Architecture() {
       <text x="8" y="208" fontSize="10" fill="var(--muted)" fontWeight="600">L4 IT</text>
       <line x1="0" y1="92" x2="420" y2="92" stroke="var(--grid)" strokeDasharray="3 3" />
       <line x1="0" y1="188" x2="420" y2="188" stroke="var(--grid)" strokeDasharray="3 3" />
+      <text x="412" y="88" textAnchor="end" fontSize="9" fill="var(--muted)">firewall</text>
+      <text x="412" y="184" textAnchor="end" fontSize="9" fill="var(--muted)">firewall</text>
       {box(20, 26, 170, "PLC / batch system", "simulated scenario", "--s4")}
       {box(230, 26, 170, "Litmus Edge", "UNS topics over MQTT", "--s4")}
+      {box(230, 122, 170, "MQTT broker + ingest", "TLS · topic check", "--s3")}
       {box(20, 122, 170, "TimescaleDB", "raw process values", "--s3")}
-      {box(230, 122, 170, "Master data", "master list · recipes · CMMS", "--s7")}
-      {box(20, 218, 170, "Neo4j knowledge graph", "structure · events · aggregates", "--s1")}
-      {box(230, 218, 170, "Analytics app", "this site", "--s2")}
+      {box(20, 218, 170, "Sync job → Neo4j", "structure · events · aggregates", "--s1")}
+      {box(230, 218, 170, "Master data", "master list · recipes · CMMS", "--s7")}
+      {box(20, 288, 170, "Analytics app", "this site", "--s2")}
       {arrow(190, 49, 228, 49)}
-      {arrow(300, 72, 120, 120)}
+      {arrow(315, 72, 315, 120)}
+      {arrow(230, 145, 192, 145)}
       {arrow(105, 168, 105, 216)}
-      {arrow(300, 168, 140, 216)}
-      {arrow(190, 241, 228, 241)}
-      <text x="210" y="290" textAnchor="middle" fontSize="10" fill="var(--muted)">One-way OT → IT, nothing writes back</text>
+      {arrow(230, 241, 192, 241)}
+      {arrow(105, 264, 105, 286)}
+      <text x="305" y="306" textAnchor="middle" fontSize="10" fill="var(--muted)">One-way OT → IT,</text>
+      <text x="305" y="320" textAnchor="middle" fontSize="10" fill="var(--muted)">nothing writes back</text>
     </svg>
   );
 }
