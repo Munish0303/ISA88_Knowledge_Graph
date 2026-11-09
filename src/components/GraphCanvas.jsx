@@ -48,14 +48,14 @@ export default function GraphCanvas({ kg, keys, selected, onSelect, layout = "fc
       style: [
         { selector: "node", style: {
           "background-color": "data(color)", shape: "data(shape)", width: "data(size)", height: "data(size)",
-          label: "data(label)", "font-size": 10, color: ink2, "text-valign": "bottom", "text-margin-y": 4,
+          label: "data(label)", "font-size": 10, "font-family": "IBM Plex Sans, system-ui, sans-serif", color: ink2, "text-valign": "bottom", "text-margin-y": 4,
           "text-background-color": surface, "text-background-opacity": 0.8, "text-background-padding": 1,
           "border-width": 2, "border-color": surface, "text-wrap": "ellipsis", "text-max-width": 120,
         } },
         { selector: "edge", style: {
           width: 1.2, "line-color": axis, "target-arrow-color": axis, "target-arrow-shape": "triangle",
           "arrow-scale": 0.7, "curve-style": "bezier",
-          label: showEdgeLabels ? "data(type)" : "", "font-size": 7, color: muted,
+          label: showEdgeLabels ? "data(type)" : "", "font-size": 7, "font-family": "IBM Plex Mono, monospace", color: muted,
           "text-rotation": "autorotate", "text-background-color": surface, "text-background-opacity": 0.85, "text-background-padding": 1,
         } },
         { selector: ".faded", style: { opacity: 0.18 } },

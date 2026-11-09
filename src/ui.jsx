@@ -67,7 +67,7 @@ export function setParam(path, params, key, value) {
 // --- formatting ----------------------------------------------------------------
 export function fmtTime(iso) {
   if (!iso) return "";
-  return new Date(iso).toISOString().slice(0, 16).replace("T", " ");
+  return new Date(iso).toISOString().slice(0, 16).replace("T", " "); // non-breaking space keeps date and time on one line
 }
 export function fmtClock(msOrIso) {
   return new Date(msOrIso).toISOString().slice(11, 16);
@@ -109,15 +109,17 @@ export function Table({ columns, rows, empty = "No rows." }) {
     <div className="table-wrap">
       <table>
         <thead>
-          <tr>{columns.map((c) => <th key={c.key}>{c.label ?? c.key}</th>)}</tr>
+          <tr>{columns.map((c) => <th key={c.key} className={c.num ? "num" : undefined}>{c.label ?? c.key}</th>)}</tr>
         </thead>
         <tbody>
           {rows.map((r, i) => (
             <tr key={i}>
               {columns.map((c) => {
                 const v = c.render ? c.render(r) : r[c.key];
+                const isDate = typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v);
+                const cls = [c.num && "num", isDate && "nowrap"].filter(Boolean).join(" ");
                 return (
-                  <td key={c.key} className={c.num ? "num" : undefined}>
+                  <td key={c.key} className={cls || undefined}>
                     {v == null || v === "" ? <span className="null">–</span> : v}
                   </td>
                 );
