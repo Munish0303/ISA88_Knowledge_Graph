@@ -7,9 +7,11 @@ import Traceability from "./views/Traceability.jsx";
 import FaultAnalysis from "./views/FaultAnalysis.jsx";
 import Maintenance from "./views/Maintenance.jsx";
 import DataModel from "./views/DataModel.jsx";
+import Value from "./views/Value.jsx";
 
 const TABS = [
   { path: "story", name: "Overview", View: Story },
+  { path: "value", name: "Value", View: Value },
   { path: "graph", name: "Knowledge graph", View: GraphExplorer },
   { path: "trace", name: "Batch traceability", View: Traceability },
   { path: "fault", name: "Fault analysis", View: FaultAnalysis },

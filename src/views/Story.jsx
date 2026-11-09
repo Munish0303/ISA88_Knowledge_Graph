@@ -19,6 +19,9 @@ export default function Story({ kg, meta }) {
             The analytics pages below are built on top of the graph: every table and chart is a traversal of it, and the Cypher
             query that answers the same question in Neo4j is shown next to it.
           </p>
+          <p>
+            <a className="link" href={href("value")}>Why it matters: a cross-batch investigation goes from hours to milliseconds →</a>
+          </p>
           <p style={{ fontSize: 12, color: "var(--muted)" }}>
             All data is simulated: equipment, recipes, batches and lots are assumptions. No company data is used.
           </p>
