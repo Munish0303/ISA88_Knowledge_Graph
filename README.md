@@ -12,17 +12,21 @@ genealogy in the ERP, raw values in the historian, alarms in an event log and de
 export from each one, match timestamps and join the results in a spreadsheet. The graph stores those links once
 (`CONSUMED`, `PRODUCED`, `DURING`, `INSTALLED_AT`, …), so the same question becomes a traversal.
 
-The B-0412 investigation, question by question:
+The B-0412 investigation, question by question. Manual times are hands-on work for an experienced engineer who
+already has access to every system:
 
-| Question | Without a graph | Manual (est.) | Graph |
+| Question | Without a graph | Manual, hands-on (est.) | Graph |
 |---|---|---|---|
-| Which raw-material lots went into B-0412? | MES batch record → ERP lot lookup | 20–40 min | ms |
-| Which later batches and lots contain B-0412 material (all levels)? | ERP genealogy, lot by lot, level by level | 1–2 h | ms |
-| Which phase and equipment were active when the alarm fired? | Batch report + alarm log, matched by timestamp | 20–40 min | ms |
-| Has TT-101 alarmed before, and which device was installed each time? | Alarm log export (30 batches) + CMMS install history | 1–2 h | ms |
-| Is TT-101 drifting? Peak temperature per batch | Historian export per batch, combined in a spreadsheet | 45–90 min | ms |
-| Where else is model TX-200 installed, and has it drifted there? | CMMS asset register + work-order history | 30–60 min | ms |
-| **Total** | **5 systems** | **≈ 4–8 hours** | **well under a second** |
+| Which raw-material lots went into B-0412? | MES batch record → ERP lot lookup | 5–10 min | ms |
+| Which later batches and lots contain B-0412 material (all levels)? | ERP genealogy, lot by lot, level by level | 10–20 min | ms |
+| Which phase and equipment were active when the alarm fired? | Batch report + alarm log, matched by timestamp | 5–10 min | ms |
+| Has TT-101 alarmed before, and which device was installed each time? | Alarm log export (30 batches) + CMMS install history | 15–30 min | ms |
+| Is TT-101 drifting? Peak temperature per batch | Historian export per batch, combined in a spreadsheet | 15–30 min | ms |
+| Where else is model TX-200 installed, and has it drifted there? | CMMS asset register + work-order history | 10–20 min | ms |
+| **Total** | **5 systems** | **≈ 1–2 hours** | **well under a second** |
+
+Elapsed time is often longer, because exports and records have to be requested from QA, IT or maintenance. The
+slowest steps are the ones no single system can answer, such as which device was installed when an alarm fired.
 
 The **Value** page runs these six queries live and shows the measured time for each one.
 
@@ -35,8 +39,8 @@ Beyond speed, the graph gives:
   an experienced engineer's head.
 - **Audit-ready answers:** every answer is a reproducible query, not a one-off spreadsheet.
 
-> The manual times are illustrative estimates for a plant with separate MES, ERP, historian, alarm log and CMMS; they are
-> not measured. The graph times are measured on the simulated graph (267 nodes). Index-backed traversals in Neo4j
+> The manual times are conservative estimates for a plant with separate MES, ERP, historian, alarm log and CMMS; they
+> are not measured and leave out waiting for exports or other teams. The graph times are measured on the simulated graph (267 nodes). Index-backed traversals in Neo4j
 > typically stay in the millisecond-to-second range at production scale because they only touch connected data.
 
 ## What's inside
@@ -44,7 +48,7 @@ Beyond speed, the graph gives:
 | Page | What it shows |
 |---|---|
 | Overview | The golden story (B-0412 → TT-101 drift → TX-200 at TT-301) and the architecture |
-| Value | How the graph turns a multi-hour, multi-system investigation into milliseconds, with live timings |
+| Value | How the graph turns a 1–2 hour, multi-system investigation into milliseconds, with live timings |
 | Knowledge graph | An interactive graph explorer with preset views, search, layer filters, a node inspector and neighbour expansion |
 | Batch traceability | Lots in and out, downstream batches, phase runs (planned vs. actual), process-value charts and the batch subgraph |
 | Fault analysis | Alarm history per Control Module, the device installed at each alarm, and per-batch peaks from the graph aggregates |

@@ -9,14 +9,14 @@ const QUESTIONS = [
   {
     q: "Which raw-material lots went into B-0412?",
     systems: "MES batch record → ERP lot lookup",
-    manualMin: [20, 40],
+    manualMin: [5, 10],
     to: href("trace", { batch: "B-0412" }),
     run: (kg) => { const r = Q.upstream(kg, "B-0412"); return `${r.length} lots`; },
   },
   {
     q: "Which later batches and lots contain B-0412 material (all levels)?",
     systems: "ERP lot genealogy, lot by lot, level by level",
-    manualMin: [60, 120],
+    manualMin: [10, 20],
     to: href("trace", { batch: "B-0412" }),
     run: (kg) => {
       const batches = new Set(Q.genealogy(kg, "B-0412", "down").flatMap((e) => e.to));
@@ -26,7 +26,7 @@ const QUESTIONS = [
   {
     q: "Which phase was running, on which equipment, when the alarm fired?",
     systems: "Batch report + alarm/event log, matched by timestamp",
-    manualMin: [20, 40],
+    manualMin: [5, 10],
     to: href("trace", { batch: "B-0412" }),
     run: (kg) => {
       const runs = Q.phaseRuns(kg, "B-0412");
@@ -37,7 +37,7 @@ const QUESTIONS = [
   {
     q: "Has TT-101 alarmed before, in which batches, and which device was installed each time?",
     systems: "Alarm log export (30 batches) + CMMS install history",
-    manualMin: [60, 120],
+    manualMin: [15, 30],
     to: href("fault", { cm: "TT101" }),
     run: (kg) => {
       const rows = Q.alarmHistory(kg, "TT101");
@@ -47,7 +47,7 @@ const QUESTIONS = [
   {
     q: "Is TT-101 drifting? Peak temperature per batch, across all batches",
     systems: "Historian export per batch, combined in a spreadsheet",
-    manualMin: [45, 90],
+    manualMin: [15, 30],
     to: href("fault", { cm: "TT101" }),
     run: (kg) => {
       const rows = Q.trend(kg, "TT101");
@@ -57,7 +57,7 @@ const QUESTIONS = [
   {
     q: "Where else is transmitter model TX-200 installed, and has it drifted there?",
     systems: "CMMS asset register + work-order history",
-    manualMin: [30, 60],
+    manualMin: [10, 20],
     to: href("maint", { model: "TX-200" }),
     run: (kg) => {
       const r = Q.recommendation(kg, "TX-200");
@@ -108,7 +108,7 @@ export default function Value({ kg }) {
       <div className="grid g4" style={{ marginBottom: 16 }}>
         <Stat label="Systems joined" value="5 (MES · ERP · historian · alarms · CMMS)" />
         <Stat label="Batches searched" value={`${kg.byLabel("Batch").length}`} />
-        <Stat label="Manual effort (estimate)" value={`${(lo / 60).toFixed(0)}–${(hi / 60).toFixed(0)} hours`} />
+        <Stat label="Manual, hands-on (estimate)" value={`${(lo / 60).toFixed(0)}–${(hi / 60).toFixed(0)} hours`} />
         <Stat label="Graph, measured in your browser" value={graphMs == null ? "…" : fmtMs(graphMs)} />
       </div>
 
@@ -117,8 +117,8 @@ export default function Value({ kg }) {
           <div>
             <h3 style={{ marginBottom: 4 }}>The B-0412 investigation, timed</h3>
             <p className="hint" style={{ margin: 0 }}>
-              The six questions an engineer asks after the TT-101 HIHI alarm in B-0412. Each graph time is the average
-              of {REPEATS} runs on this page.
+              The six questions an engineer asks after the TT-101 HIHI alarm in B-0412. Manual times assume an experienced
+              engineer who already has access to every system. Each graph time is the average of {REPEATS} runs on this page.
             </p>
           </div>
           <button className="btn primary" onClick={run}>Run again</button>
@@ -133,8 +133,10 @@ export default function Value({ kg }) {
           ]} />
         </div>
         <p className="hint" style={{ marginTop: 8 }}>
-          Total: about <b>{(lo / 60).toFixed(0)}–{(hi / 60).toFixed(0)} hours</b> by hand versus{" "}
-          <b>{graphMs == null ? "…" : fmtMs(graphMs)}</b> on the graph.
+          Total: about <b>{(lo / 60).toFixed(0)}–{(hi / 60).toFixed(0)} hours</b> of hands-on work versus{" "}
+          <b>{graphMs == null ? "…" : fmtMs(graphMs)}</b> on the graph. Elapsed time is often longer, because exports and
+          records have to be requested from QA, IT or maintenance. The slowest steps are the ones no single system can
+          answer, such as which device was installed when an alarm fired.
         </p>
       </div>
 
@@ -198,8 +200,9 @@ export default function Value({ kg }) {
 
       <div style={{ marginTop: 16 }}>
         <Callout tone="info">
-          <b>About the numbers:</b> the manual effort is an illustrative estimate for a plant where these records sit in
-          separate systems; it is not measured. The graph times are measured live on this simulated graph
+          <b>About the numbers:</b> the manual times are conservative estimates of hands-on work for a plant where these
+          records sit in separate systems, assuming the engineer knows the tools and has access. They are not measured, and
+          they leave out waiting for exports or other teams. The graph times are measured live on this simulated graph
           ({kg.nodes.size} nodes, {kg.rels.length} relationships). A production graph is much larger, but index-backed
           traversals in Neo4j typically stay in the millisecond-to-second range because they only touch connected data.
         </Callout>
